@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square"></a>
+  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-2ea44f?style=flat-square"></a>
   <a href="https://www.meta.com/experiences/openqr/1236442736226659/"><img alt="Meta Horizon Store" src="https://img.shields.io/badge/Meta%20Horizon%20Store-live-0081fb?style=flat-square"></a>
   <a href="https://github.com/orgista/openQR/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/orgista/openQR?style=flat-square"></a>
 </p>
@@ -93,7 +93,7 @@ Issues and pull requests are welcome. Keep changes small and say how you tested 
 
 ## License
 
-[MIT](LICENSE). Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[Apache 2.0](LICENSE). Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
 
