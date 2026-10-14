@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play distribution: the Quest passthrough-camera permission has no meaning
+     on phones/tablets and would show up in the Play listing's permission
+     audit, so strip it from this flavor. The oculus meta-data entries are
+     inert on non-Quest devices and stay shared. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission
+        android:name="horizonos.permission.HEADSET_CAMERA"
+        tools:node="remove" />
+</manifest>

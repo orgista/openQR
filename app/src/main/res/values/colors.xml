@@ -21,6 +21,9 @@
     <color name="button_fill_hovered">#F3F7FC</color>
     <color name="button_fill_pressed">#E7EEF8</color>
     <color name="button_fill_disabled">#D1D1D1</color>
+    <color name="scan_button_fill_active">#5D646D</color>
+    <color name="scan_button_fill_active_hovered">#69727D</color>
+    <color name="scan_button_fill_active_pressed">#515860</color>
     <color name="camera_button_fill_active">#5D646D</color>
     <color name="camera_button_fill_active_hovered">#69727D</color>
     <color name="camera_button_fill_active_pressed">#515860</color>

@@ -16,6 +16,9 @@
 
             <data android:scheme="https" />
         </intent>
+
+        <package android:name="com.google.android.apps.youtube.vr.oculus" />
+        <package android:name="com.oculus.store" />
     </queries>
 
     <uses-permission android:name="android.permission.CAMERA" />

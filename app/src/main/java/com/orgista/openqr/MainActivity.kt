@@ -20,9 +20,10 @@ import android.view.animation.LinearInterpolator
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.Lifecycle
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import com.orgista.openqr.browser.BrowserLauncher
-import com.orgista.openqr.browser.LaunchResult
+import com.orgista.openqr.browser.LinkRouter
+import com.orgista.openqr.browser.RouteResult
 import com.orgista.openqr.camera.QuestCameraSession
 import com.orgista.openqr.logging.AppLogger
 import com.orgista.openqr.databinding.ActivityMainBinding
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private var scanRequested = false
     private var cameraModeEnabled = false
     private var pendingBrowserHandoff: Runnable? = null
+    private var pendingDebugPayload: String? = null
     private var pendingScanTimeout: Runnable? = null
     private var pulseAnimator: AnimatorSet? = null
     private var bracketsAnimator: ObjectAnimator? = null
@@ -51,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         AppLogger.info("Permission result received: allGranted=${hasAllPermissions()}")
-        permanentDenial = REQUIRED_PERMISSIONS.any { permission ->
+        permanentDenial = requiredPermissions.any { permission ->
             !shouldShowRequestPermissionRationale(permission) && !hasPermission(permission)
         }
         if (hasAllPermissions()) {
@@ -118,12 +120,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         renderPermissionState()
+        if (savedInstanceState == null) {
+            captureDebugPayload(intent)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        captureDebugPayload(intent)
     }
 
     override fun onResume() {
         super.onResume()
         AppLogger.debug("MainActivity resumed")
         applyResponsiveSizing()
+        resetAfterHandoff()
+        pendingDebugPayload?.let { payload ->
+            pendingDebugPayload = null
+            handleQrCode(payload)
+            return
+        }
         if (!browserHandoffComplete && hasAllPermissions()) {
             if (scanRequested) {
                 shouldStartWhenReady = true
@@ -163,6 +180,15 @@ class MainActivity : AppCompatActivity() {
         scanRequested = false
     }
 
+    override fun onDestroy() {
+        clearPendingBrowserHandoff()
+        mainHandler.removeCallbacks(handoffResetFallback)
+        if (::cameraSession.isInitialized) {
+            cameraSession.release()
+        }
+        super.onDestroy()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (!::cameraSession.isInitialized) {
@@ -180,6 +206,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // A panel opening beside the reader bounces focus away and straight back;
+        // let the fallback timer end the handoff state instead of that bounce.
+        if (!mainHandler.hasCallbacks(handoffResetFallback)) {
+            resetAfterHandoff()
+        }
         if (!browserHandoffComplete && scanRequested && hasAllPermissions()) {
             AppLogger.debug("Window focus regained; resuming scanner")
             shouldStartWhenReady = true
@@ -205,7 +236,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestPermissions() {
         AppLogger.info("Requesting camera permissions")
-        permissionLauncher.launch(REQUIRED_PERMISSIONS)
+        permissionLauncher.launch(requiredPermissions)
     }
 
     private fun renderReadyState() {
@@ -220,10 +251,10 @@ class MainActivity : AppCompatActivity() {
     private fun startScanner() {
         clearPendingBrowserHandoff()
         clearPendingScanTimeout()
-        if (!cameraSession.hasPassthroughCamera()) {
+        if (!cameraSession.hasUsableCamera()) {
             AppLogger.warn("Passthrough camera not available on this device")
             renderState(
-                statusRes = R.string.status_unsupported_device,
+                statusRes = unsupportedDeviceStatusRes(),
                 buttonTextRes = R.string.action_unavailable,
                 iconRes = R.drawable.ic_state_warning,
                 buttonEnabled = false
@@ -257,10 +288,10 @@ class MainActivity : AppCompatActivity() {
     private fun startPreviewMode() {
         clearPendingBrowserHandoff()
         clearPendingScanTimeout()
-        if (!cameraSession.hasPassthroughCamera()) {
+        if (!cameraSession.hasUsableCamera()) {
             AppLogger.warn("Preview mode unavailable because passthrough camera is missing")
             renderState(
-                statusRes = R.string.status_unsupported_device,
+                statusRes = unsupportedDeviceStatusRes(),
                 buttonTextRes = R.string.action_unavailable,
                 iconRes = R.drawable.ic_state_warning,
                 buttonEnabled = false
@@ -281,6 +312,7 @@ class MainActivity : AppCompatActivity() {
         binding.stateIcon.visibility = View.GONE
         binding.actionButton.visibility = View.VISIBLE
         binding.actionButton.isEnabled = true
+        binding.actionButton.isActivated = true
         binding.actionButton.setText(R.string.action_scanning)
         binding.cameraModeButton.visibility = View.VISIBLE
         binding.cameraModeButton.isEnabled = true
@@ -309,11 +341,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Debug builds only: lets e2e tests inject a payload as if it had been scanned.
+    private fun captureDebugPayload(intent: Intent?) {
+        if (!BuildConfig.DEBUG) {
+            return
+        }
+        val payload = intent?.getStringExtra(DEBUG_PAYLOAD_EXTRA) ?: return
+        intent.removeExtra(DEBUG_PAYLOAD_EXTRA)
+        AppLogger.debug("Debug payload received")
+        pendingDebugPayload = payload
+    }
+
+    // The reader stays alive after a handoff so the user comes back to it when
+    // the other app closes; the first resume or focus return resets the UI.
+    private val handoffResetFallback = Runnable { resetAfterHandoff() }
+
+    private fun resetAfterHandoff() {
+        mainHandler.removeCallbacks(handoffResetFallback)
+        if (!browserHandoffComplete) {
+            return
+        }
+        browserHandoffComplete = false
+        renderReadyState()
+    }
+
+    // A camera callback can land after onStop; never hand off from the background.
+    private fun canHandOff(): Boolean =
+        !isFinishing && !isDestroyed && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
     private fun handleQrCode(rawValue: String) {
+        if (!canHandOff()) {
+            return
+        }
         AppLogger.info("QR candidate detected")
-        val sanitized = BrowserLauncher.sanitize(rawValue)
-        if (sanitized == null) {
-            AppLogger.warn("Rejected QR content because it is not a supported web URL")
+        if (LinkRouter.parse(rawValue) == null) {
+            AppLogger.warn("Rejected QR content because it is not a supported link")
             clearPendingScanTimeout()
             cameraSession.stop()
             scanRequested = false
@@ -336,23 +398,36 @@ class MainActivity : AppCompatActivity() {
             buttonEnabled = false
         )
 
-        val launchUri = Uri.parse(sanitized)
         pendingBrowserHandoff = Runnable {
-            when (val result = BrowserLauncher.launchExternalUri(this, launchUri)) {
-                is LaunchResult.Launched -> {
-                    AppLogger.info("External browser handoff succeeded")
+            if (!canHandOff()) {
+                return@Runnable
+            }
+            val route = runCatching { LinkRouter.open(this, rawValue) }.getOrElse { error ->
+                AppLogger.error("Link routing threw", error)
+                RouteResult.NoHandler
+            }
+            when (val result = route) {
+                is RouteResult.Launched -> {
+                    AppLogger.info("External handoff succeeded: target=${result.target}")
                     browserHandoffComplete = true
+                    val vrTap = LinkRouter.needsVrTap(rawValue)
+                    // A browser panel can open beside the reader without taking its
+                    // focus, so don't wait on resume/focus alone to leave "Opening".
+                    // WebXR spaces keep the "tap VR" hint up long enough to read.
+                    mainHandler.postDelayed(
+                        handoffResetFallback,
+                        if (vrTap) VR_TAP_HINT_MS else HANDOFF_RESET_FALLBACK_MS
+                    )
                     renderState(
-                        statusRes = null,
+                        statusRes = if (vrTap) R.string.status_tap_vr else null,
                         buttonTextRes = R.string.action_opening,
                         iconRes = R.drawable.ic_state_check,
                         buttonEnabled = false
                     )
-                    mainHandler.postDelayed({ finish() }, FINISH_AFTER_HANDOFF_DELAY_MS)
                 }
 
-                LaunchResult.InvalidUrl -> {
-                    AppLogger.warn("Supported URL became invalid before browser handoff")
+                RouteResult.Invalid -> {
+                    AppLogger.warn("Supported link became invalid before handoff")
                     scanRequested = false
                     clearPreviewFrame()
                     renderState(
@@ -362,8 +437,8 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
 
-                LaunchResult.NoBrowser -> {
-                    AppLogger.error("External browser handoff failed because no browser resolved")
+                RouteResult.NoHandler -> {
+                    AppLogger.error("External handoff failed because no app resolved")
                     scanRequested = false
                     clearPreviewFrame()
                     renderState(
@@ -388,7 +463,30 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun hasAllPermissions(): Boolean = REQUIRED_PERMISSIONS.all(::hasPermission)
+    // The headset passthrough permission only exists on Horizon OS. Requiring
+    // it unconditionally left every phone/tablet permanently "Camera blocked":
+    // platforms auto-deny permissions they don't define, so hasAllPermissions()
+    // could never become true off-headset.
+    private val requiredPermissions: Array<String> by lazy {
+        val permissions = mutableListOf(Manifest.permission.CAMERA)
+        val headsetCameraKnown = runCatching {
+            packageManager.getPermissionInfo(HEADSET_CAMERA_PERMISSION, 0)
+        }.isSuccess
+        if (headsetCameraKnown) permissions += HEADSET_CAMERA_PERMISSION
+        permissions.toTypedArray()
+    }
+
+    private fun hasAllPermissions(): Boolean = requiredPermissions.all(::hasPermission)
+
+    // "Quest 3 or 3S" is real guidance on a headset (Quest 2 lacks the
+    // passthrough camera API); on a phone or tablet it is nonsense — there the
+    // only unsupported case is hardware with no usable camera at all.
+    private fun unsupportedDeviceStatusRes(): Int =
+        if (requiredPermissions.contains(HEADSET_CAMERA_PERMISSION)) {
+            R.string.status_unsupported_device
+        } else {
+            R.string.status_no_camera
+        }
 
     private fun hasPermission(permission: String): Boolean =
         checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -401,8 +499,8 @@ class MainActivity : AppCompatActivity() {
                 iconRes = R.drawable.ic_state_warning
             )
 
-            R.string.status_unsupported_device -> renderState(
-                statusRes = R.string.status_unsupported_device,
+            R.string.status_unsupported_device, R.string.status_no_camera -> renderState(
+                statusRes = unsupportedDeviceStatusRes(),
                 buttonTextRes = R.string.action_unavailable,
                 iconRes = R.drawable.ic_state_warning,
                 buttonEnabled = false
@@ -440,6 +538,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.actionButton.visibility = View.VISIBLE
         binding.actionButton.isEnabled = buttonEnabled
+        binding.actionButton.isActivated = scanRequested
         binding.actionButton.setText(buttonTextRes)
         binding.cameraModeButton.visibility = View.VISIBLE
         binding.cameraModeButton.isEnabled = true
@@ -654,8 +753,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun clearPendingBrowserHandoff() {
-        pendingBrowserHandoff?.let(mainHandler::removeCallbacks)
+        val cancelled = pendingBrowserHandoff
+        cancelled?.let(mainHandler::removeCallbacks)
         pendingBrowserHandoff = null
+        if (cancelled != null) {
+            // The launch never happened; don't leave "Opening" on screen.
+            renderReadyState()
+        }
     }
 
     private fun clearPendingScanTimeout() {
@@ -665,11 +769,10 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         const val BROWSER_HANDOFF_DELAY_MS = 550L
-        const val FINISH_AFTER_HANDOFF_DELAY_MS = 250L
+        const val HANDOFF_RESET_FALLBACK_MS = 3000L
+        const val VR_TAP_HINT_MS = 8000L
+        const val DEBUG_PAYLOAD_EXTRA = "openqr.debug.payload"
         const val SCAN_SESSION_TIMEOUT_MS = 10000L
-        val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.CAMERA,
-            "horizonos.permission.HEADSET_CAMERA"
-        )
+        const val HEADSET_CAMERA_PERMISSION = "horizonos.permission.HEADSET_CAMERA"
     }
 }
