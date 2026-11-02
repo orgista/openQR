@@ -1,0 +1,81 @@
+<!-- @dsCard group="Mixed reality" height=1040 width=1200 page subtitle="Mock of the MR mode: tags on codes when spatial data is on; found codes always also appear as notices above the pill" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Passthrough — mock</title>
+<style>
+  .scenes { display: flex; gap: 24px; padding: 24px; flex-wrap: wrap; }
+  .frame { display: flex; flex-direction: column; gap: 8px; }
+  .frame p { margin: 0; font-size: 14px; line-height: 20px; color: var(--text-tertiary); }
+  /* Flat stand-ins for the room: a wall, a floor line, two posters. */
+  .room { position: relative; width: 560px; height: 460px; overflow: hidden; border-radius: var(--radius-24); background: var(--brand-tile-top); }
+  .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: var(--brand-tile-bottom); }
+  .poster { position: absolute; background: var(--preview-frame); border-radius: var(--radius-4); padding: 14px; }
+  .poster .mockqr { display: block; }
+  .tagpos { position: absolute; }
+  .ray { position: absolute; height: 3px; transform-origin: 0 50%; border-radius: 2px; background: var(--brand-ink); opacity: .7; }
+  .ray-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--brand-ink); }
+  .pillpos { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  // Mock QR posters standing in for codes in the room (not scannable).
+  function qrRects(seed) {
+    var n = 21, rects = [], r = seed;
+    function finder(cx, cy) { rects.push([cx, cy, 7, 7, 1], [cx + 1, cy + 1, 5, 5, 0], [cx + 2, cy + 2, 3, 3, 1]); }
+    finder(0, 0); finder(14, 0); finder(0, 14);
+    for (var j = 0; j < n; j++) for (var i = 0; i < n; i++) {
+      var inFinder = (i < 8 && j < 8) || (i > 12 && j < 8) || (i < 8 && j > 12);
+      r = (r * 1103515245 + 12345) & 0x7fffffff;
+      if (!inFinder && (r >> 16) % 2) rects.push([i, j, 1, 1, 1]);
+    }
+    return rects;
+  }
+  function MockQR(props) {
+    return h("svg", { className: "mockqr", viewBox: "-2 -2 25 25", width: props.size, height: props.size, shapeRendering: "crispEdges", "aria-hidden": true },
+      h("rect", { x: -2, y: -2, width: 25, height: 25, style: { fill: "var(--brand-ink)" } }),
+      qrRects(props.seed).map(function (q, k) { return h("rect", { key: k, x: q[0], y: q[1], width: q[2], height: q[3], style: { fill: q[4] ? "var(--button-text)" : "var(--brand-ink)" } }); }));
+  }
+  function Poster(x, y, size, seed) {
+    return h('div', { className: 'poster', style: { left: x - 14, top: y - 14 } }, h(MockQR, { size: size, seed: seed }));
+  }
+  // A controller ray from below the view to the point it hits.
+  function Ray(x1, y1, x2, y2) {
+    var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy), ang = Math.atan2(dy, dx) * 180 / Math.PI;
+    return [h('div', { key: 'r', className: 'ray', style: { left: x1, top: y1, width: len, transform: 'rotate(' + ang + 'deg)' } }),
+            h('div', { key: 'd', className: 'ray-dot', style: { left: x2, top: y2 } })];
+  }
+  // Fallback: no spatial data, so no tags; decoded codes stack as notices above the pill.
+  function Fallback(caption, notices) {
+    return h('div', { className: 'frame' }, h('p', null, caption),
+      h('div', { className: 'room', 'aria-label': caption },
+        h('div', { className: 'floor' }),
+        Poster(96, 70, 108, 7), Poster(352, 104, 92, 99),
+        h('div', { className: 'pillpos' }, h('div', { className: 'oq-fallback' },
+          h(Q.NoticeStack, { notices: notices }), h(Q.PillReader, { mode: 'scanning' })))));
+  }
+  function Scene(caption, a, b, pill, ray) {
+    return h('div', { className: 'frame' }, h('p', null, caption),
+      h('div', { className: 'room', 'aria-label': caption },
+        h('div', { className: 'floor' }),
+        Poster(96, 40, 108, 7), Poster(352, 64, 92, 99),
+        h('div', { className: 'tagpos', style: { left: 96, top: 40 } }, h(Q.CodeTag, Object.assign({ size: 108 }, a))),
+        h('div', { className: 'tagpos', style: { left: 352, top: 64 } }, h(Q.CodeTag, Object.assign({ size: 92 }, b))),
+        ray || null,
+        h('div', { className: 'pillpos' }, h('div', { className: 'oq-fallback' },
+          h(Q.NoticeStack, { notices: pill }), h(Q.PillReader, { mode: 'scanning' })))));
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'scenes' },
+    Scene('Two codes tagged; pointing at YouTube',
+      { state: 'found', kind: 'web', label: 'example.com' }, { state: 'hover', kind: 'youtube' },
+      [{ id: 'a', kind: 'web', label: 'example.com' }, { id: 'b', kind: 'youtube' }], Ray(556, 330, 440, 198)),
+    Scene('Clicked example.com: opening',
+      { state: 'opening', kind: 'web', label: 'example.com' }, { state: 'found', kind: 'youtube' },
+      [{ id: 'a', kind: 'web', label: 'example.com', state: 'opening' }, { id: 'b', kind: 'youtube' }]),
+    Fallback('No spatial data: codes appear as notices above the pill',
+      [{ id: 'a', kind: 'web', label: 'example.com' }, { id: 'b', kind: 'youtube' }])
+  ));
+</script>
+</body>
+</html>

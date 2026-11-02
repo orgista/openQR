@@ -1,0 +1,24 @@
+<!-- @dsCard group="Mixed reality" height=430 subtitle="The always-on pill: the scan toggle, or one line for a system message" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>PillReader — preview</title>
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-24); padding: var(--space-24); }
+  .cell { display: flex; flex-direction: column; gap: var(--space-12); }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  function Cell(caption, el) { return h('div', { className: 'cell' }, h('p', { className: 'oq-caption' }, caption), el); }
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'grid' },
+    Cell('Scanning', h(Q.PillReader, { mode: 'scanning' })),
+    Cell('Paused after 10 minutes', h(Q.PillReader, { mode: 'paused' })),
+    Cell('Off', h(Q.PillReader, { mode: 'off' })),
+    Cell('Spatial data is off', h(Q.PillReader, { mode: 'status', status: { kind: 'warning', title: 'Spatial data is off', action: { label: 'Allow' } } })),
+    Cell('Confirm a network', h(Q.PillReader, { mode: 'status', status: { kind: 'positive', title: 'Join Cafe-North?', action: { label: 'Join' } } })),
+    Cell('No app for a link', h(Q.PillReader, { mode: 'status', status: { kind: 'negative', title: 'No app can open this' } }))
+  ));
+</script>
+</body>
+</html>

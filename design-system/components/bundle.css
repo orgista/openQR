@@ -1,0 +1,120 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap");
+
+body { margin: 0; font-family: var(--font-sans); background: var(--brand-tile-bottom); color: var(--text-primary); }
+.oq-stage { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-16); padding: var(--space-24); }
+.oq-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-12); padding: var(--space-24); }
+.oq-caption { font-size: 14px; line-height: 20px; color: var(--text-tertiary); margin: 0 0 calc(-1 * var(--space-8)); }
+.oq-icon { display: block; flex: none; }
+
+/* ---------- Tooltip (ScanToggle) ---------- */
+.oq-pi-wrap { position: relative; display: inline-flex; flex: none; }
+.oq-st:active, .oq-btn:active, .oq-chip:active { transform: scale(0.95); }
+.oq-tip { position: absolute; left: 50%; bottom: calc(100% + var(--space-8)); transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font-size: 14px; line-height: 20px; padding: var(--space-4) var(--space-12); border-radius: var(--radius-8);
+  background: var(--status-panel); border: 1px solid var(--status-panel-stroke); color: var(--text-primary); opacity: 0; transition: opacity 120ms ease-out; z-index: 2; }
+.oq-pi-wrap:hover .oq-tip, .oq-pi-wrap:focus-within .oq-tip { opacity: 1; }
+
+/* ---------- PillReader: always hugs its content. No outer border: the system draws panel edges. ---------- */
+.oq-pill { box-sizing: border-box; width: max-content; max-width: var(--pill-width); height: var(--pill-height); padding: 0 var(--space-8); border-radius: var(--radius-pill);
+  display: flex; align-items: center; gap: var(--space-4); background: var(--surface); color: var(--text-primary); align-self: flex-start; }
+.oq-pill-note { gap: var(--space-8); padding: 0 var(--space-24) 0 var(--space-18); }
+.oq-pill-act { gap: var(--space-8); padding: 0 var(--space-12) 0 var(--space-18); }
+.oq-pill-title { min-width: 0; font-size: 14px; line-height: 20px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oq-pill-act .oq-pill-title { margin-right: var(--space-4); }
+.oq-pill .oq-btn { flex: none; }
+
+.oq-tone-positive { color: var(--positive); display: inline-flex; }
+.oq-tone-warning { color: var(--warning); display: inline-flex; }
+.oq-tone-negative { color: var(--negative); display: inline-flex; }
+.oq-tone-busy { display: inline-flex; }
+
+/* ---------- ScanToggle ---------- */
+.oq-st { position: relative; width: var(--scan-toggle); height: var(--scan-toggle); border-radius: var(--radius-pill); border: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center; background: var(--preview-frame); color: var(--text-primary); cursor: pointer; transition: box-shadow 120ms ease-out; }
+.oq-st:hover, .oq-st:focus-visible { outline: none; box-shadow: var(--ring-hover); }
+.oq-st-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 50%; animation: oq-spin 2000ms linear infinite; }
+.oq-st-ring circle { fill: none; stroke-width: var(--scan-ring); }
+.oq-st-track { stroke: var(--accent-soft); }
+.oq-st-arc { stroke: var(--brand-sky); stroke-linecap: round; stroke-dasharray: 42 125; }
+@keyframes oq-spin { to { transform: rotate(360deg); } }
+.oq-st-glyph-stop { display: none; }
+.oq-st-on:hover .oq-st-glyph-on, .oq-st-on:focus-visible .oq-st-glyph-on { display: none; }
+.oq-st-on:hover .oq-st-glyph-stop, .oq-st-on:focus-visible .oq-st-glyph-stop { display: block; }
+.oq-st-off { color: var(--text-secondary); }
+
+/* ---------- ActionButton (v0 drawables) ---------- */
+.oq-btn { box-sizing: border-box; height: var(--target); min-width: var(--button-min-width); padding: 0 var(--space-18); border-radius: var(--radius-pill);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); font: 500 14px/20px var(--font-sans); cursor: pointer; border: 1px solid; }
+.oq-btn-primary { background: var(--button-fill); color: var(--action-button-text); border-color: var(--button-stroke-rest); }
+.oq-btn-primary:hover, .oq-btn-primary:focus-visible { outline: none; background: var(--button-fill-hovered); color: var(--action-button-text-hovered); border-color: var(--button-stroke-hovered); }
+.oq-btn-primary:active { background: var(--button-fill-pressed); color: var(--action-button-text-pressed); border-color: var(--button-stroke-pressed); }
+.oq-btn-active, .oq-btn-active:hover, .oq-btn-active:focus-visible, .oq-btn-active:active { color: var(--on-accent); }
+.oq-btn-primary.oq-btn-active { background: var(--scan-button-fill-active); border-color: var(--button-stroke-pressed); }
+.oq-btn-primary.oq-btn-active:hover, .oq-btn-primary.oq-btn-active:focus-visible { background: var(--scan-button-fill-active-hovered); border-color: var(--button-stroke-hovered); }
+.oq-btn-primary.oq-btn-active:active { background: var(--scan-button-fill-active-pressed); }
+.oq-btn-quiet { background: var(--secondary-button-fill); color: var(--text-primary); border-color: var(--secondary-button-stroke); }
+.oq-btn-quiet:hover, .oq-btn-quiet:focus-visible { outline: none; border-color: var(--button-stroke-hovered); }
+.oq-btn-quiet:active { background: var(--secondary-button-fill-pressed); border-color: var(--secondary-button-stroke-selected); }
+.oq-btn:disabled, .oq-btn:disabled:hover { background: var(--button-fill-disabled); color: var(--action-button-text); border-color: var(--button-stroke-rest); cursor: default; }
+.oq-btn-quiet:disabled { background: var(--secondary-button-fill-disabled); color: var(--text-tertiary); }
+.oq-btn-expanded { width: 100%; max-width: var(--primary-button-max); }
+.oq-btn:focus-visible { box-shadow: var(--ring-hover); }
+
+/* ---------- CodeChip ---------- */
+.oq-chip { box-sizing: border-box; height: var(--target); border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: var(--space-8);
+  padding: 0 var(--space-18) 0 var(--space-12); font: 500 14px/20px var(--font-sans); cursor: pointer; border: 1px solid; white-space: nowrap; }
+.oq-chip-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oq-chip-on-code { background: var(--button-fill); color: var(--action-button-text); border-color: var(--button-stroke-rest); }
+.oq-chip-row { width: 100%; background: var(--secondary-button-fill); color: var(--text-primary); border-color: var(--secondary-button-stroke); }
+.oq-chip:hover, .oq-chip:focus-visible { outline: none; box-shadow: var(--ring-hover); }
+.oq-chip:disabled { cursor: default; background: var(--secondary-button-fill-disabled); color: var(--text-tertiary); box-shadow: none; }
+.oq-chip-out { opacity: var(--out-of-view); }
+.oq-spin { flex: none; animation: oq-spin 900ms linear infinite; }
+.oq-spin circle { fill: none; stroke-width: 2.5; }
+.oq-spin-track { stroke: var(--accent-soft); }
+.oq-spin-arc { stroke: var(--brand-sky); stroke-linecap: round; stroke-dasharray: 14 43; }
+.oq-chip-opening .oq-spin-track { stroke: var(--button-fill-pressed); }
+.oq-chip-opening .oq-spin-arc { stroke: var(--brand-blue); }
+.oq-chip-opening, .oq-chip-opening:disabled { cursor: default; background: var(--button-fill); color: var(--action-button-text); border-color: var(--button-stroke-rest); box-shadow: var(--ring-hover); }
+
+/* ---------- CodeTag: on a real code in passthrough ---------- */
+.oq-tag { position: relative; box-sizing: border-box; }
+.oq-tag-br { position: absolute; width: 26%; height: 26%; border: 0 solid var(--brand-sky); }
+.oq-tag-br-tl { top: -8px; left: -8px; border-top-width: var(--tag-stroke); border-left-width: var(--tag-stroke); border-top-left-radius: var(--radius-8); }
+.oq-tag-br-tr { top: -8px; right: -8px; border-top-width: var(--tag-stroke); border-right-width: var(--tag-stroke); border-top-right-radius: var(--radius-8); }
+.oq-tag-br-bl { bottom: -8px; left: -8px; border-bottom-width: var(--tag-stroke); border-left-width: var(--tag-stroke); border-bottom-left-radius: var(--radius-8); }
+.oq-tag-br-br { bottom: -8px; right: -8px; border-bottom-width: var(--tag-stroke); border-right-width: var(--tag-stroke); border-bottom-right-radius: var(--radius-8); }
+.oq-tag-chip { position: absolute; top: calc(100% + var(--space-16)); left: 50%; transform: translateX(-50%); z-index: 1; }
+.oq-tag-hover .oq-tag-br { border-color: var(--brand-ink); }
+.oq-tag-hover .oq-chip { box-shadow: var(--ring-hover); }
+.oq-tag-opening .oq-tag-br { border-color: var(--brand-ink); }
+.oq-tag-unsupported .oq-tag-br { border-color: var(--text-tertiary); border-style: dashed; }
+.oq-tag-lost { opacity: var(--out-of-view); }
+.oq-tag-lost .oq-tag-br { border-color: var(--text-tertiary); }
+
+/* ---------- NoticeStack: fallback without spatial data ---------- */
+.oq-notices { width: var(--notice-width); display: flex; flex-direction: column; gap: var(--space-8); }
+.oq-notice-more { align-self: center; font-size: 14px; line-height: 20px; color: var(--text-secondary); }
+.oq-notice { box-sizing: border-box; width: 100%; min-height: var(--notice-height); padding: var(--space-8) var(--space-16) var(--space-8) var(--space-8);
+  display: flex; align-items: center; gap: var(--space-12); text-align: left; border: 0; border-radius: var(--radius-24);
+  background: var(--surface); color: var(--text-primary); font: inherit; cursor: pointer; transition: box-shadow 120ms ease-out, opacity 300ms ease-out; }
+.oq-notice:hover, .oq-notice:focus-visible { outline: none; box-shadow: var(--ring-hover); }
+.oq-notice:active { transform: scale(0.95); }
+.oq-notice-icon { flex: none; width: var(--target); height: var(--target); border-radius: var(--radius-pill); background: var(--preview-frame); display: inline-flex; align-items: center; justify-content: center; }
+.oq-notice-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.oq-notice-title { font-size: 14px; line-height: 20px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oq-notice-sub { font-size: 14px; line-height: 20px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oq-notice-go { color: var(--brand-sky); }
+.oq-notice-lingering { opacity: var(--out-of-view); }
+.oq-notice-opening { cursor: default; box-shadow: var(--ring-hover); }
+.oq-notice-unsupported { cursor: default; }
+.oq-notice-unsupported .oq-notice-icon { color: var(--text-tertiary); }
+.oq-notice-unsupported .oq-notice-title { color: var(--text-secondary); }
+.oq-fallback { display: flex; flex-direction: column; align-items: center; gap: var(--space-8); }
+.oq-fallback .oq-pill { align-self: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .oq-spin { animation: none; }
+  .oq-st-ring { animation: none; }
+  .oq-st-arc { stroke-dasharray: 6 6; }
+}

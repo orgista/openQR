@@ -1,0 +1,16 @@
+<!-- @dsCard group="Iconography" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Icon — preview</title>
+<style>.ic { display:flex; flex-direction:column; align-items:center; gap:6px; width:84px; font-size:14px; line-height:18px; color:var(--text-tertiary); } .ic svg { color: var(--text-primary); }</style></head>
+<body style="background:var(--surface)">
+<div id="root" class="oq-row" style="gap:8px"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  var names = ['scan','check','warning','lock','camera','internet','youtube','store','app','wifi','bluetooth','unsupported','stop','play','open','positive','negative'];
+  ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null, names.map(function (n) {
+    return h('div', { key: n, className: 'ic' }, h(Q.Icon, { name: n }), n);
+  })));
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!-- @dsCard group="Controls" height=150 subtitle="Hover the first one to see Stop" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ScanToggle — preview</title></head>
+<body style="background:var(--surface)">
+<div id="root" class="oq-row" style="padding-top:60px"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  function Demo() {
+    var s = React.useState(true), on = s[0];
+    return h(Q.ScanToggle, { on: on, onClick: function () { s[1](!on); } });
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
+    h(Demo), h(Q.ScanToggle, { on: false })));
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OpenQR</title>
+<style>
+  html, body { margin:0; height:100%; }
+  body { background:var(--surface); color:var(--brand-ink); font-family:var(--font-sans); overflow:hidden; }
+  .cover { position:relative; height:288px; overflow:hidden; }
+  .art { position:absolute; top:0; left:480px; width:480px; height:288px; overflow:hidden; }
+  .art svg { display:block; width:500px; height:288px; }
+  .blue { fill:var(--brand-blue); }
+  .sky { fill:var(--brand-sky); }
+  .field { fill:var(--brand-field); }
+  .cut { fill:var(--surface); }
+  .live { fill:var(--positive); }
+  .pill { rx:36px; }
+  .core { rx:var(--radius-16); }
+  .slab { rx:var(--radius-20); }
+  .br { fill:none; stroke:var(--brand-ink); stroke-width:4; stroke-linecap:round; }
+  .br.dim { opacity:var(--mark-dim); }
+  .words { position:absolute; left:var(--space-24); bottom:var(--space-24); max-width:440px; }
+  .name { margin:0; font-size:120px; line-height:.9; font-weight:500; letter-spacing:-.02em; color:var(--brand-ink); }
+  .tag { margin:var(--space-16) 0 0 4px; font-size:14px; line-height:20px; color:var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="cover">
+<div class="art" aria-hidden="true">
+<svg viewBox="0 0 500 288" width="500" height="288">
+<!--
+  blocks      brand-blue capsule pill-width×pill-height (360×72, the compact window) · brand-sky core 72×72 · brand-field slab 476×144 bleeding off the right · positive 8px dot once (it only means "scanning") — ≈38% of 960×288
+  arrangement one capsule with its satellite core on top, the dark slab under them; left edges on space-24, gutters space-16
+  pattern     corner brackets, from the "Corner" mark (round-capped bracket on a 48 grid): 18 brackets at a 48 pitch on the slab in brand-ink, every third at mark-dim; the capsule carries four surface-coloured 48px target discs cut out, as the PillReader does
+  scales      capsule rx = half of pill-height; core radius-16; slab radius-20; disc = target (48); bracket pitch 48 = target; insets space-12, gutters space-16, dot = dot (8)
+-->
+<rect class="blue pill" x="24" y="32" width="360" height="72" rx="36"/>
+<circle class="cut" cx="72" cy="68" r="24"/>
+<circle class="live" cx="84" cy="56" r="4"/>
+<circle class="cut" cx="176" cy="68" r="24"/>
+<circle class="cut" cx="228" cy="68" r="24"/>
+<circle class="cut" cx="336" cy="68" r="24"/>
+<rect class="sky core" x="400" y="32" width="72" height="72" rx="16"/>
+<rect class="field slab" x="24" y="120" width="476" height="144" rx="20"/>
+<g transform="translate(40 154)">
+  <path class="br" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(48 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(96 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(144 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(192 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(240 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(288 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(336 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(384 0)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(0 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(48 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(96 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(144 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(192 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(240 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br dim" transform="translate(288 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(336 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+  <path class="br" transform="translate(384 48)" d="M4 24V10a6 6 0 0 1 6-6h14"/>
+</g>
+</svg>
+</div>
+<div class="words">
+<h1 class="name">OpenQR</h1>
+<p class="tag">Open a QR code by looking at it.</p>
+</div>
+</div>
+</body>
+</html>

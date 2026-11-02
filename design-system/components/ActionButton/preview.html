@@ -1,0 +1,17 @@
+<!-- @dsCard group="Controls" height=96 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ActionButton — preview</title></head>
+<body style="background:var(--surface)">
+<div id="root" class="oq-row"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  ReactDOM.createRoot(document.getElementById('root')).render(h(React.Fragment, null,
+    h(Q.ActionButton, null, 'Scan again'),
+    h(Q.ActionButton, { active: true }, 'Scanning'),
+    h(Q.ActionButton, { variant: 'quiet' }, 'Copy password'),
+    h(Q.ActionButton, { disabled: true }, 'Unavailable')
+  ));
+</script>
+</body>
+</html>

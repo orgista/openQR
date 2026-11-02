@@ -1,0 +1,30 @@
+<!-- @dsCard group="Mixed reality" height=420 subtitle="Fallback without spatial data: newest notice nearest the pill" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>NoticeStack — preview</title>
+<style>
+  .row { display: flex; gap: 48px; padding: 24px; align-items: flex-end; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+</style></head>
+<body>
+<div id="root"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  function Col(caption, notices) {
+    return h('div', { className: 'col' }, h('p', { className: 'oq-caption' }, caption),
+      h('div', { className: 'oq-fallback' }, h(Q.NoticeStack, { notices: notices }), h(Q.PillReader, { mode: 'scanning' })));
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'row' },
+    Col('Three codes found; one has left view', [
+      { id: 1, kind: 'store', state: 'lingering' },
+      { id: 2, kind: 'wifi', label: 'Join Cafe-North' },
+      { id: 3, kind: 'web', label: 'example.com' }]),
+    Col('Opening, and one code it refuses', [
+      { id: 4, kind: 'web', label: 'menu.example.com', state: 'opening' },
+      { id: 5, state: 'unsupported' }]),
+    Col('Five codes: three shown', [
+      { id: 6, kind: 'app' }, { id: 7, kind: 'bluetooth' }, { id: 8, kind: 'youtube' }, { id: 9, kind: 'store' }, { id: 10, kind: 'web', label: 'example.com' }])
+  ));
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!-- @dsCard group="Mixed reality" height=300 subtitle="Drawn on the real code in passthrough; point and click the chip" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>CodeTag — preview</title>
+<style>
+  .grid { display: flex; gap: 72px; padding: 40px 56px 96px; flex-wrap: wrap; align-items: flex-start; }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 28px; }
+  .cell p { margin: 0; font-size: 14px; line-height: 20px; color: var(--text-tertiary); }
+  .spot { position: relative; width: 112px; height: 112px; }
+  .spot > svg, .spot > .oq-tag { position: absolute; inset: 0; }
+</style></head>
+<body style="background:var(--brand-tile-top)">
+<div id="root"></div>
+<script>
+  var Q = window.OpenQR, h = React.createElement;
+  // Mock QR posters standing in for codes in the room (not scannable).
+  function qrRects(seed) {
+    var n = 21, rects = [], r = seed;
+    function finder(cx, cy) { rects.push([cx, cy, 7, 7, 1], [cx + 1, cy + 1, 5, 5, 0], [cx + 2, cy + 2, 3, 3, 1]); }
+    finder(0, 0); finder(14, 0); finder(0, 14);
+    for (var j = 0; j < n; j++) for (var i = 0; i < n; i++) {
+      var inFinder = (i < 8 && j < 8) || (i > 12 && j < 8) || (i < 8 && j > 12);
+      r = (r * 1103515245 + 12345) & 0x7fffffff;
+      if (!inFinder && (r >> 16) % 2) rects.push([i, j, 1, 1, 1]);
+    }
+    return rects;
+  }
+  function MockQR(props) {
+    return h("svg", { className: "mockqr", viewBox: "-2 -2 25 25", width: props.size, height: props.size, shapeRendering: "crispEdges", "aria-hidden": true },
+      h("rect", { x: -2, y: -2, width: 25, height: 25, style: { fill: "var(--brand-ink)" } }),
+      qrRects(props.seed).map(function (q, k) { return h("rect", { key: k, x: q[0], y: q[1], width: q[2], height: q[3], style: { fill: q[4] ? "var(--button-text)" : "var(--brand-ink)" } }); }));
+  }
+  function Cell(caption, seed, tag) {
+    return h('div', { className: 'cell' }, h('p', null, caption),
+      h('div', { className: 'spot' }, h(MockQR, { size: 112, seed: seed }), h(Q.CodeTag, Object.assign({ size: 112 }, tag))));
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'grid' },
+    Cell('Found', 7, { state: 'found', kind: 'web', label: 'example.com' }),
+    Cell('Pointed at', 11, { state: 'hover', kind: 'youtube' }),
+    Cell('Opening', 21, { state: 'opening', kind: 'web', label: 'example.com' }),
+    Cell("Can't open", 33, { state: 'unsupported' }),
+    Cell('Tracking lost (8 s)', 45, { state: 'lost', kind: 'store' })
+  ));
+</script>
+</body>
+</html>
