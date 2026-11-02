@@ -59,4 +59,5 @@ OpenQR, by Orgista, reads a QR code through the Quest 3 / 3S passthrough camera 
 ## Iconography
 
 - The mark is the "Corner": a heavy round-capped corner bracket in `brand-ink`, a dim opposite bracket at `mark-dim`, and a lit rounded core from `brand-sky` to `brand-blue`, on a 48-unit grid. Use the files in **Logos** as they are. Never redraw it, recolour the core, or set "OpenQR" beside it in a custom face.
+- **Boot splash** (**Splash**): the mark above the "OpenQR" wordmark in Inter 600, on the graphite app-icon plate, so it reads over black or passthrough. It ships as `assets/vr_splash.png` with `com.oculus.ossplash` set in the manifest; the setup notes are in the repo at `design-system/splash/README.md`.
 - UI icons are 24dp at `text-primary`. The app's own drawables are scan, check, warning, lock and camera. The 1.1 screens use Meta UI Set icons (`Icons.Regular.*`); the Icon component carries stand-ins for those, which are not Meta's artwork.
