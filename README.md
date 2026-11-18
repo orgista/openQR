@@ -87,6 +87,38 @@ Release builds need your own signing key, passed through the `OPENQR_KEYSTORE_FI
 
 OpenQR has no internet permission, no account and no analytics. It reads camera frames on the headset to find the code, then discards them. It keeps no scan history and hands the link straight to the app that opens it.
 
+## Releases
+
+[![CI](https://github.com/orgista/openQR/actions/workflows/ci.yml/badge.svg)](https://github.com/orgista/openQR/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/orgista/openQR?include_prereleases&sort=semver)](https://github.com/orgista/openQR/releases)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/orgista/openQR/badge)](https://scorecard.dev/viewer/?uri=github.com/orgista/openQR)
+
+Downloads live on the [Releases page](https://github.com/orgista/openQR/releases): the signed APK (`openqr-quest-vX.Y.Z.apk`).
+The release APK is built and signed on our build Mac and published there. Store builds on the [Meta Horizon Store](https://www.meta.com/experiences/openqr/1236442736226659/) use the same version numbers as the APKs here.
+
+- **Versions** follow [Semantic Versioning](https://semver.org/): `vMAJOR.MINOR.PATCH`. A version with a
+  suffix (`v1.4.0-beta.1`) is a pre-release and is marked as one.
+- **Cadence:** we ship when a change is ready, and at least one maintenance release a month while the project
+  is in active development. Security fixes ship within 7 days of a confirmed report.
+- **Every release** has a [CHANGELOG](CHANGELOG.md) entry (the release notes are taken from it), a `SHA256SUMS` checksum file and a GitHub attestation for every file.
+- **Support:** only the latest release gets fixes. Please update before reporting a bug.
+
+Check a download before installing it:
+
+```bash
+shasum -a 256 -c SHA256SUMS --ignore-missing
+gh attestation verify openqr-quest-v1.0.60.apk --repo orgista/openQR
+```
+
+**Maintainers:** add the version's section to `CHANGELOG.md`, build and sign the release, then publish with
+
+```bash
+scripts/release-github X.Y.Z path/to/build-artifact
+```
+
+The script tags `vX.Y.Z`, uses the CHANGELOG section as the notes, uploads the files with `SHA256SUMS`, and can be
+re-run safely. Full policy: [orgista release process](https://github.com/orgista/.github/blob/main/RELEASING.md).
+
 ## Contributing
 
 Issues and pull requests are welcome. Keep changes small and say how you tested them on a headset.
