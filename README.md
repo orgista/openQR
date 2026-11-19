@@ -1,22 +1,22 @@
-<p align="center">
-  <img alt="OpenQR icon" src=".github/assets/openqr-icon.png" width="96">
-</p>
+<div align="center">
 
-<h1 align="center">OpenQR</h1>
+<img src=".github/assets/openqr-icon.png" alt="OpenQR icon" width="96">
 
-<h3 align="center">A QR code reader for Meta Quest 3 and 3S</h3>
+# OpenQR
 
-<p align="center">
-  <a href="https://www.meta.com/experiences/openqr/1236442736226659/"><strong>Get it on the Meta Horizon Store</strong></a> ·
-  <a href="https://github.com/orgista/openQR/releases/latest">Download the APK</a> ·
-  <a href="#build-from-source">Build from source</a>
-</p>
+**A QR code reader for Meta Quest 3 and 3S. Point the headset at a code and open it.**
 
-<p align="center">
-  <a href="LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/license-Apache%202.0-2ea44f?style=flat-square"></a>
-  <a href="https://www.meta.com/experiences/openqr/1236442736226659/"><img alt="Meta Horizon Store" src="https://img.shields.io/badge/Meta%20Horizon%20Store-live-0081fb?style=flat-square"></a>
-  <a href="https://github.com/orgista/openQR/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/orgista/openQR?style=flat-square"></a>
-</p>
+[![CI](https://img.shields.io/github/actions/workflow/status/orgista/openQR/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/orgista/openQR/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/orgista/openQR/badge)](https://scorecard.dev/viewer/?uri=github.com/orgista/openQR)
+[![Latest release](https://img.shields.io/github/v/release/orgista/openQR?style=flat-square)](https://github.com/orgista/openQR/releases/latest)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache%202.0-2ea44f?style=flat-square)](LICENSE)
+[![Meta Horizon Store](https://img.shields.io/badge/Meta%20Horizon%20Store-live-0081fb?style=flat-square)](https://www.meta.com/experiences/openqr/1236442736226659/)
+
+[Get it on the Meta Horizon Store](https://www.meta.com/experiences/openqr/1236442736226659/) · [Download the APK](https://github.com/orgista/openQR/releases/latest) · [Build from source](#build-from-source)
+
+</div>
+
+---
 
 OpenQR reads QR codes through the Quest passthrough camera and opens what's in them. It runs in a normal window, so you can keep it next to whatever else you have open.
 
@@ -88,10 +88,6 @@ Release builds need your own signing key, passed through the `OPENQR_KEYSTORE_FI
 OpenQR has no internet permission, no account and no analytics. It reads camera frames on the headset to find the code, then discards them. It keeps no scan history and hands the link straight to the app that opens it.
 
 ## Releases
-
-[![CI](https://github.com/orgista/openQR/actions/workflows/ci.yml/badge.svg)](https://github.com/orgista/openQR/actions/workflows/ci.yml)
-[![Latest release](https://img.shields.io/github/v/release/orgista/openQR?include_prereleases&sort=semver)](https://github.com/orgista/openQR/releases)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/orgista/openQR/badge)](https://scorecard.dev/viewer/?uri=github.com/orgista/openQR)
 
 Downloads live on the [Releases page](https://github.com/orgista/openQR/releases): the signed APK (`openqr-quest-vX.Y.Z.apk`).
 The release APK is built and signed on our build Mac and published there. Store builds on the [Meta Horizon Store](https://www.meta.com/experiences/openqr/1236442736226659/) use the same version numbers as the APKs here.
