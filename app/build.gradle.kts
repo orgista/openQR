@@ -1,4 +1,5 @@
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -89,10 +90,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         buildConfig = true
         viewBinding = true
@@ -153,5 +150,11 @@ tasks.configureEach {
     // must hit the same guard as the aggregate release tasks.
     if (name.matches(Regex("pre\\w*ReleaseBuild|assemble\\w*Release|bundle\\w*Release|package\\w*Release"))) {
         dependsOn(verifyOpenQrReleaseSigning)
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
